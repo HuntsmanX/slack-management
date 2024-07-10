@@ -15,6 +15,7 @@
 /coverage
 /spec/examples.txt
 rspec.xml
+.env.local
 
 .byebug_history
 .rakeTasks
