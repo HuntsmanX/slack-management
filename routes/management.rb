@@ -24,6 +24,8 @@ hash_branch "slack" do |req|
       payload = req.params
       if payload["command"] == "/takamol_general_channels"
         AddGeneralChannels.call({ channel_prefix: payload["text"] })
+      elsif payload["command"] == "/add_business_unit"
+        AddBusinessUnit.call({ unit_name: payload["text"] })
       else
         { text: "Unknown command" }
       end

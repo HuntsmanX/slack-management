@@ -4,6 +4,8 @@ require "roda"
 require "strum/service"
 require "strum/pipe"
 require "config/constants"
+require "config/sequel"
+require "config/models"
 require "slack-ruby-client"
 require "config/slack_config"
 
