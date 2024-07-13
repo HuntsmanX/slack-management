@@ -38,6 +38,8 @@ class SlackManagement
             { text: "Check Logs for error #{error}" }
           end
         end
+      elsif payload["command"] == "/add_business_unit"
+        AddBusinessUnit.call({ unit_name: payload["text"] })
       else
         { text: "No Command" }
       end

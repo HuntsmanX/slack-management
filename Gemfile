@@ -5,12 +5,19 @@ source "https://rubygems.org"
 ruby ">= 3.2.2"
 
 gem "async-websocket", "~>0.8.0"
+gem "async-websocket", "~>0.8.0"
 gem "irb", "~> 1.3"
 gem "puma", "~> 6.4.1"
 gem "rack-unreloader"
 gem "rake", "~> 12.0"
 gem "roda", "3.81.0"
 gem "slack-ruby-bot"
+
+# database
+gem "pg", "~> 1.2"
+gem "sequel", "~> 5.41"
+gem "sequel_pg", "~> 1.14"
+gem "sequel-rake"
 
 group :strum do
   gem "strum-pipe", "~> 0.0.4"
