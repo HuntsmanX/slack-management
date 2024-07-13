@@ -6,10 +6,18 @@ ruby ">= 3.2.2"
 
 gem "irb", "~> 1.3"
 gem "puma", "~> 6.4.1"
+gem "rack-unreloader"
 gem "rake", "~> 12.0"
 gem "roda", "3.81.0"
 gem 'slack-ruby-bot'
 gem 'async-websocket', '~>0.8.0'
+
+
+group :strum do
+  gem "strum-pipe", "~> 0.0.4"
+  gem "strum-pipeline", "~> 0.1.3"
+  gem "strum-service", "~> 0.2.1"
+end
 
 
 group :development do

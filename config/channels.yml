@@ -1,0 +1,11 @@
+test:
+  flood: true
+  general: true
+  announcements: true
+  releases: true
+  management: true
+  onboarding: true
+  documentation: true
+  issues: true
+
+
