@@ -14,7 +14,7 @@ unless defined?(Unreloader)
   Unreloader = Rack::Unreloader.new(reload: false)
 end
 Unreloader.require("services")
-
+Unreloader.require("helpers")
 
 # API entry point
 class SlackManagement < Roda
@@ -37,8 +37,7 @@ class SlackManagement < Roda
   end
 
   def send_back(response_url, data)
-    content = { text: "```\n#{data}\n```" }.to_json
-    response = Faraday.post(response_url, content, "Content-Type" => "application/json")
-    response.success? ? nil : [response.status, "Error: #{response.reason_phrase}"]
+    content = { text: "```\n#{data}\n```"}.to_json
+    Faraday.post(response_url, content, "Content-Type" => "application/json")
   end
 end

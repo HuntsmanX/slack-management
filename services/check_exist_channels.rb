@@ -4,9 +4,14 @@ class CheckExistChannels
   include Strum::Service
 
   def call
-    channels = templates[channel_prefix].keys.map { |i| "#{channel_prefix}_#{i}" }
-    result = channels.reduce({}) { |h, e| h.merge(e => channel_exists?(e)) }
-    add_error(message(result), :exist) if result.values.include?(true)
+    template = templates[channel_prefix]
+    if template
+      channels = template.keys.map { |i| "#{channel_prefix}_#{i}" }
+      result = channels.reduce({}) { |h, e| h.merge(e => channel_exists?(e)) }
+      add_error(message(result), :exist) if result.values.include?(true)
+    elsif template.nil?
+      add_error(:no_template, :not_found)
+    end
   end
 
   private
