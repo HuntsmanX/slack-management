@@ -11,4 +11,4 @@ unless ENV["RACK_ENV"] == "production"
   Dotenv.load(".env.#{ENV['RACK_ENV'].downcase}", ".env.local")
 end
 
-ENV["ROOT"] = File.expand_path("..", __dir__)
+ENV["STRUM_ROOT"] = File.expand_path("..", __dir__)
