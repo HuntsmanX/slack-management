@@ -13,7 +13,12 @@ require "strum/pipe"
 
 unless defined?(Unreloader)
   require "rack/unreloader"
-  Unreloader = Rack::Unreloader.new(logger: Logger.new($stdout), reload: true) { SlackManagement }
+  Unreloader = Rack::Unreloader.new(subclasses: %w[Sequel::Model],
+                                    logger: Logger.new($stdout),
+                                    reload: true) { SlackManagement }
 end
+
+require "config/sequel"
+Unreloader.require("models") { |f| Sequel::Model.send(:camelize, File.basename(f).sub(/.rb\z/, "")) }
 
 IRB.start

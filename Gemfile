@@ -12,6 +12,12 @@ gem "roda", "3.81.0"
 gem 'slack-ruby-bot'
 gem 'async-websocket', '~>0.8.0'
 
+# database
+gem "pg", "~> 1.2"
+gem "sequel", "~> 5.41"
+gem "sequel_pg", "~> 1.14"
+gem "sequel-rake"
+
 
 group :strum do
   gem "strum-pipe", "~> 0.0.4"
