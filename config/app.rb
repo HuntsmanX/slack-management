@@ -38,10 +38,7 @@ class SlackManagement < Roda
 
   def send_back(response_url, data)
     content = { text: "```\n#{data}\n```" }.to_json
-    uri = URI(response_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
     response = Faraday.post(response_url, content, "Content-Type" => "application/json")
     response.success? ? nil : [response.status, "Error: #{response.reason_phrase}"]
-    end
+  end
 end
