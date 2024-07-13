@@ -10,3 +10,5 @@ unless ENV["RACK_ENV"] == "production"
   require "dotenv"
   Dotenv.load(".env.#{ENV['RACK_ENV'].downcase}", ".env.local")
 end
+
+ENV["ROOT"] = File.expand_path("..", __dir__)

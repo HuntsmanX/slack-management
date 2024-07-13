@@ -63,7 +63,7 @@ namespace :sequel do # rubocop:disable Metrics/BlockLength
     require "logger"
     Sequel.extension :migration
     DB.loggers << Logger.new($stdout) if DB.loggers.empty?
-    Sequel::TimestampMigrator.apply(DB, File.join(ENV["STRUM_ROOT"], "db/migrations"), args.version)
+    Sequel::TimestampMigrator.apply(DB, File.join(ENV["ROOT"], "db/migrations"), args.version)
   end
 
   desc "Rollback database"

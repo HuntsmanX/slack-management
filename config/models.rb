@@ -3,6 +3,7 @@
 require "sequel/model"
 require "config/sequel"
 
+Sequel::Model.plugin(:timestamps)
 Sequel::Model.plugin(:auto_validations)
 Sequel::Model.plugin(:constraint_validations)
 Sequel::Model.plugin(:subclasses)
