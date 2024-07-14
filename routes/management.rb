@@ -38,11 +38,17 @@ class SlackManagement
         trigger_id = payload["trigger_id"]
         begin
           SlackConfig.client.views_open(create_leaves_modal(trigger_id))
-          status 200
           body "Modal opened"
         rescue Slack::Web::Api::Errors::SlackError => e
-          status 500
           body "Error opening modal: #{e.message}"
+        end
+      elsif payload["command"] == "/add_team"
+        trigger_id = payload["trigger_id"]
+        begin
+          SlackConfig.client.views_open(create_team_modal(trigger_id))
+          puts "Modal opened"
+        rescue Slack::Web::Api::Errors::SlackError => e
+          puts "Error opening modal: #{e.message}"
         end
       else
         { text: "No Command" }
@@ -55,15 +61,16 @@ class SlackManagement
 
         payload = request_data["payload"] ? JSON.parse(request_data["payload"]) : request_data
 
-        case payload["type"]
-        when "view_submission"
+        binding.pry
+        case payload['view']['callback_id']
+        when "password_modal"
           password = payload["view"]["state"]["values"]["password_block"]["password_input"]["value"]
           private_metadata = JSON.parse(payload["view"]["private_metadata"])
           response_url = private_metadata["response_url"]
           data = private_metadata["data"]
 
           if password == Constants::MANAGER_PASSWORD
-            Strum::Pipe.call(ChannelTemplates,
+            Strum::Pipe.call(BusinessChannelTemplates,
                              CheckExistChannels,
                              AddGeneralChannels,
                              input: { channel_prefix: data }) do |m|
@@ -94,6 +101,17 @@ class SlackManagement
             Faraday.post(response_url, message.to_json, "Content-Type" => "application/json")
             { response_action: "clear" }
           end
+        when "team_callback"
+          binding.pry
+          request_data = JSON.parse(req.params["payload"])
+          values = payload['view']['state']['values']
+           Strum::Pipe.call(CheckExistingTeamChannels,
+                            AddTeamChannels,
+                           AddGeneralChannels,
+                           input: {team_name: values['input_block']['input_action']['value'],
+                                   needed_channels: values['checkboxes_block']['checkboxes_action']['selected_options'].map { |option| option['value'] },
+                                   business_account_id: values['dropdown_block']['dropdown_action']['selected_option']['value']
+                           })
         end
       end
     end

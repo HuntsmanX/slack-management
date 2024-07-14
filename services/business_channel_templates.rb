@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "yaml"
-class ChannelTemplates
+class BusinessChannelTemplates
   include Strum::Service
 
   def call
@@ -19,7 +19,7 @@ class ChannelTemplates
   end
 
   def channel_from_file
-    YAML.load_file(Constants::MAPPING_PLACE)
+    YAML.load_file(Constants::BUSINESS_UNIT_MAPPING_PLACE)
   rescue StandardError => e
     puts e.inspect
   end

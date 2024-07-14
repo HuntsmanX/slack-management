@@ -1,3 +1,5 @@
+
+require "yaml"
 module SlackUiBlocks
   def create_password_modal(trigger_id, response_url, data)
     private_metadata = {
@@ -133,5 +135,100 @@ module SlackUiBlocks
         }
       }
     }
+  end
+
+  def create_team_modal(trigger_id)
+    options = BusinessUnit.all.map do |option|
+      {
+        text: {
+          type: 'plain_text',
+          text: option.name
+        },
+        value: option.id.to_s
+      }
+    end
+    checkboxes = channel_from_file.keys.map do |option|
+      {
+        text: {
+          type: 'plain_text',
+          text: option
+        },
+        value: option
+      }
+    end
+
+    {
+      trigger_id: trigger_id,
+      view: {
+        type: 'modal',
+        callback_id: 'team_callback',
+        title: {
+          type: 'plain_text',
+          text: 'My Modal'
+        },
+        blocks: [
+          {
+            type: 'input',
+            block_id: 'dropdown_block',
+            element: {
+              type: 'static_select',
+              action_id: 'dropdown_action',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Select an option'
+              },
+              options: options
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Dropdown'
+            }
+          },
+          {
+            type: 'input',
+            block_id: 'input_block',
+            element: {
+              type: 'plain_text_input',
+              action_id: 'input_action',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Enter your text'
+              }
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Text Input'
+            }
+          },
+          {
+            type: 'input',
+            block_id: 'checkboxes_block',
+            element: {
+              type: 'checkboxes',
+              action_id: 'checkboxes_action',
+              options: checkboxes
+            },
+            label: {
+              type: 'plain_text',
+              text: 'Checkboxes'
+            }
+          }
+        ],
+        submit: {
+          type: 'plain_text',
+          text: 'Submit'
+        },
+        close: {
+          type: 'plain_text',
+          text: 'Cancel'
+        }
+      }
+    }
+  end
+
+  def channel_from_file
+    YAML.load_file(Constants::TEAM_UNIT_MAPPING_PLACE)
+  rescue StandardError => e
+    puts e.inspect
   end
 end
