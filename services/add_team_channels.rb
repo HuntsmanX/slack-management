@@ -5,12 +5,13 @@ class AddTeamChannels
   include Strum::Service
 
   def call
-    binding.pry
     result_hash = {}
-    channel_from_file.each do |k, v|
-      channel = create_channel("#{}_#{k}", false)
-      set_topic(channel["channel"]["id"], v[0]) if v[0]
-      set_purpose(channel["channel"]["id"], v[1]) if v[1]
+    needed_channels_full.each do |i|
+      channel = create_channel(i, false)
+      name = i.match(/_([^_]+)$/)[1]
+      set_topic(channel["channel"]["id"], name) if name
+      set_purpose(channel["channel"]["id"], name) if name
+      store_channel(name, team_id, channel["channel"]["id"])
       result_hash[channel["channel"]["name"]] = channel["ok"]
     end
     output(message(result_hash))
@@ -19,7 +20,11 @@ class AddTeamChannels
   private
 
   def audit
-    required(:needed_channels, :team_name, :needed_channels, :business_account_id)
+    required(:needed_channels, :team_id, :business_account_id, :needed_channels_full)
+  end
+
+  def store_channel(name, team_id, channel_id)
+    Channel.create(name:, team_id:, channel_id:)
   end
 
   def message(hash)

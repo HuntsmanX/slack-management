@@ -11,6 +11,7 @@ class AddGeneralChannels
       set_topic(channel["channel"]["id"], v[0]) if v[0]
       set_purpose(channel["channel"]["id"], v[1]) if v[1]
       result_hash[channel["channel"]["name"]] = channel["ok"]
+      store_channel(channel["channel"]["name"], channel["channel"]["id"])
     end
     output(message(result_hash))
   end
@@ -38,6 +39,11 @@ class AddGeneralChannels
     response
   end
 
+  def store_channel(name, channel_id)
+    team = Team.find(name: "General")
+    Channel.create(name:, team_id: team.id, channel_id:)
+  end
+
   def set_topic(channel, topic)
     SlackConfig.client.conversations_setTopic(channel:, topic:)
     puts "Channel topic set."
@@ -55,7 +61,7 @@ class AddGeneralChannels
   end
 
   def channel_from_file
-    YAML.load_file(Constants::MAPPING_PLACE)
+    YAML.load_file(Constants::BUSINESS_UNIT_MAPPING_PLACE)
   rescue StandardError => e
     puts e.inspect
   end

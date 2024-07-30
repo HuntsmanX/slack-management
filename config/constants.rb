@@ -5,4 +5,5 @@ module Constants
   BUSINESS_UNIT_MAPPING_PLACE = "config/templates/business_unit_channels.yml"
   TEAM_UNIT_MAPPING_PLACE = "config/templates/team_channels_template.yml"
   MANAGER_PASSWORD = ENV.fetch("MANAGER_PASSWORD", "")
+  APP_ROOT = ENV.fetch("APP_ROOT")
 end

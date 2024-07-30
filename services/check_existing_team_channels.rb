@@ -5,19 +5,21 @@ class CheckExistingTeamChannels
 
   def call
     unit_name = BusinessUnit.find(id: business_account_id).name.downcase
-    channels_names = needed_channels.map{|i| "#{unit_name}_#{team_name}_#{i}"}
+    team_name = Team.find(id: team_id).name.downcase
+    team_name.gsub!(" ", "_") if team_name.include?(" ")
+    channels_names = needed_channels.map { |i| "#{unit_name}_#{team_name}_#{i}" }
     result = channels_names.reduce({}) { |h, e| h.merge(e => channel_exists?(e)) }
     if result.values.include?(true)
       add_error(message(result), :exist)
     else
-      output(needed_channels: channels_names)
+      output(needed_channels_full: channels_names)
     end
   end
 
   private
 
   def audit
-    required(:team_name, :needed_channels, :business_account_id)
+    required(:team_id, :needed_channels, :business_account_id)
   end
 
   def message(hash)

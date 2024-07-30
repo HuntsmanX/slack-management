@@ -12,3 +12,4 @@ unless ENV["RACK_ENV"] == "production"
 end
 
 ENV["STRUM_ROOT"] = File.expand_path("..", __dir__)
+ENV["APP_ROOT"] = File.expand_path("..", __dir__)

@@ -9,7 +9,9 @@ require "config/constants"
 require "config/slack_config"
 require "strum/service"
 require "strum/pipe"
-
+require "config/sequel"
+require "config/models"
+require "db/seeds/teams"
 
 unless defined?(Unreloader)
   require "rack/unreloader"

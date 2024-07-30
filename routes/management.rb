@@ -44,8 +44,18 @@ class SlackManagement
         end
       elsif payload["command"] == "/add_team"
         trigger_id = payload["trigger_id"]
+        response_url = payload["response_url"]
         begin
-          SlackConfig.client.views_open(create_team_modal(trigger_id))
+          SlackConfig.client.views_open(create_team_modal(trigger_id, response_url))
+          puts "Modal opened"
+        rescue Slack::Web::Api::Errors::SlackError => e
+          puts "Error opening modal: #{e.message}"
+        end
+      elsif payload["command"] == "/add_people"
+        trigger_id = payload["trigger_id"]
+        response_url = payload["response_url"]
+        begin
+          SlackConfig.client.views_open(add_people_modal(trigger_id, response_url))
           puts "Modal opened"
         rescue Slack::Web::Api::Errors::SlackError => e
           puts "Error opening modal: #{e.message}"
@@ -60,9 +70,7 @@ class SlackManagement
         request_data = JSON.parse(req.params["payload"])
 
         payload = request_data["payload"] ? JSON.parse(request_data["payload"]) : request_data
-
-        binding.pry
-        case payload['view']['callback_id']
+        case payload["view"]["callback_id"]
         when "password_modal"
           password = payload["view"]["state"]["values"]["password_block"]["password_input"]["value"]
           private_metadata = JSON.parse(payload["view"]["private_metadata"])
@@ -102,16 +110,67 @@ class SlackManagement
             { response_action: "clear" }
           end
         when "team_callback"
-          binding.pry
-          request_data = JSON.parse(req.params["payload"])
-          values = payload['view']['state']['values']
-           Strum::Pipe.call(CheckExistingTeamChannels,
-                            AddTeamChannels,
-                           AddGeneralChannels,
-                           input: {team_name: values['input_block']['input_action']['value'],
-                                   needed_channels: values['checkboxes_block']['checkboxes_action']['selected_options'].map { |option| option['value'] },
-                                   business_account_id: values['dropdown_block']['dropdown_action']['selected_option']['value']
-                           })
+          values = payload["view"]["state"]["values"]
+          private_metadata = JSON.parse(payload["view"]["private_metadata"])
+          response_url = private_metadata["response_url"]
+          Strum::Pipe.call(CheckExistingTeamChannels,
+                           AddTeamChannels,
+                           input: { business_account_id: values["dropdown_block"]["dropdown_action"]["selected_option"]["value"],
+                                    needed_channels: values["checkboxes_block"]["checkboxes_action"]["selected_options"].map do |option|
+                                                       option["value"]
+                                                     end,
+                                    team_id: values["dropdown_block_team"]["dropdown_action"]["selected_option"]["value"] }) do |m|
+            m.success do |result|
+              send_back(response_url, result)
+              { response_action: "clear" }
+            end
+            m.failure(:not_found) do
+              message = { text: "Template is not found <@#{payload['user']['id']}>" }
+              Faraday.post(response_url, message.to_json, "Content-Type" => "application/json")
+              { response_action: "clear" }
+            end
+            m.failure(:empty) do |_errors|
+              message = { text: "Template can not be empty <@#{payload['user']['id']}>" }
+              Faraday.post(response_url, message.to_json, "Content-Type" => "application/json")
+              { response_action: "clear" }
+            end
+            m.failure(:exist) do |errors|
+              send_back(response_url, errors.keys.first)
+              { response_action: "clear" }
+            end
+            m.failure do |error|
+              { text: "Check Logs for error #{error}" }
+            end
+          end
+        when "add_people"
+          values = payload["view"]["state"]["values"]
+          private_metadata = JSON.parse(payload["view"]["private_metadata"])
+          response_url = private_metadata["response_url"]
+          Strum::Pipe.call(AddPeople,
+                           input: { emails: values["text_area_block"]["text_area_action"]["value"],
+                                    team_id: values["dropdown_block_team"]["dropdown_action"]["selected_option"]["value"] }) do |m|
+            m.success do |result|
+              send_back(response_url, result[:message])
+              { response_action: "clear" }
+            end
+            m.failure(:not_found) do
+              message = { text: "Template is not found <@#{payload['user']['id']}>" }
+              Faraday.post(response_url, message.to_json, "Content-Type" => "application/json")
+              { response_action: "clear" }
+            end
+            m.failure(:empty) do |_errors|
+              message = { text: "Template can not be empty <@#{payload['user']['id']}>" }
+              Faraday.post(response_url, message.to_json, "Content-Type" => "application/json")
+              { response_action: "clear" }
+            end
+            m.failure(:exist) do |errors|
+              send_back(response_url, errors.keys.first)
+              { response_action: "clear" }
+            end
+            m.failure do |error|
+              { text: "Check Logs for error #{error}" }
+            end
+          end
         end
       end
     end

@@ -47,6 +47,21 @@ namespace :sequel do # rubocop:disable Metrics/BlockLength
     Rake::Task["sequel:migrate"].execute
   end
 
+  desc "Apply database seeds"
+  task :seed do |_t, _args|
+    require "config/constants"
+    require "config/sequel"
+    require "logger"
+
+    seeds = File.join(ENV.fetch("APP_ROOT"), "db/seeds/*.rb")
+    Dir[File.expand_path(seeds)].each do |file|
+      require(file)
+      seed_class = File.basename(file, ".rb").split("_").map(&:capitalize).join
+      seed = Seeds.const_get(seed_class).new
+      seed.run
+    end
+  end
+
   desc "Prints current schema version"
   task :version do
     require "config/sequel"
